@@ -138,7 +138,7 @@
   }
 
   h1 {
-    font-size: 6rem;
+    font-size: 2rem;
     font-weight: 100;
   }
 
@@ -183,7 +183,7 @@
       display: inline-flex;
       align-items: center;
       min-block-size: 40px;
-      padding: 8px 16px;
+      padding: 8px 20px;
       border-radius: 999px;
       cursor: pointer;
       -webkit-user-select: none;
@@ -454,14 +454,14 @@
               name="template"
               value="repeat(auto-fit, minmax(224px, 1fr))"
               checked
-            />Even</label
+            />A. Even</label
           >
           <label title="細い列と太い列を交互に作る"
             ><input
               type="radio"
               name="template"
               value="repeat(auto-fit, minmax(128px, .8fr) minmax(224px, 1.6fr))"
-            />Mixed</label
+            />B. Mixed</label
           >
         </div>
       </fieldset>
@@ -469,9 +469,9 @@
     <div class="group" id="flow-group">
       <label title="小さいほど前に詰めることを優先。大きいほど見た目の順序を保ちやすい。"
         >Flow Tolerance
-        <input id="t" type="range" min="4" max="48" step="1" value="16" />
+        <input id="t" type="range" min="0" max="320" step="16" value="16" />
       </label>
-      <output id="out">16px</output>
+      <output id="out">16px (normal)</output>
     </div>
   </form>
 
@@ -488,12 +488,19 @@
   const t = document.getElementById("t");
   const out = document.getElementById("out");
   const supportsGridLanes = CSS.supports("display", "grid-lanes");
+  const defaultFlowTolerance = 16;
   const sizes = ["", "mid", "", "tall", "", "mid", "", "wide"];
   const images = Array.from(
     { length: 12 },
     (_, i) => `./images/photo_${String(i + 1).padStart(5, "0")}.webp`,
   );
   const mutate = (fn) => document.startViewTransition(fn);
+  const formatFlowTolerance = (value) =>
+    value === defaultFlowTolerance ? `${value}px (normal)` : `${value}px`;
+  const setFlowTolerance = (value) => {
+    root.style.setProperty("--t", `${value}px`);
+    out.value = out.textContent = formatFlowTolerance(value);
+  };
   for (let i = 1; i <= 30; i++) {
     const article = document.createElement("article");
     const size = sizes[(i - 1) % sizes.length];
@@ -543,12 +550,12 @@
         root.style.setProperty("--cols", e.target.value);
       });
   }
-  t.value = "16";
+  t.value = String(defaultFlowTolerance);
+  setFlowTolerance(defaultFlowTolerance);
   t.oninput = (e) => {
-    const v = `${e.target.value}px`;
+    const value = Number(e.target.value);
     mutate(() => {
-      root.style.setProperty("--t", v);
-      out.value = out.textContent = v;
+      setFlowTolerance(value);
     });
   };
 </script>
