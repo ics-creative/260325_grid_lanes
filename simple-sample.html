@@ -1,0 +1,93 @@
+<!doctype html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Grid Lanes Example</title>
+<style>
+  body {
+    background: white;
+    font-family: sans-serif;
+  }
+  .not-supported {
+    display: none;
+    margin-bottom: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f3f2ee;
+    color: #355c66;
+    font-weight: 700;
+  }
+  .grid-lanes-demo {
+    display: grid-lanes;
+    grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+    flow-tolerance: 16px;
+    gap: 8px;
+    counter-reset: n;
+
+    .card {
+      display: grid;
+      place-items: center;
+      min-height: 96px;
+      border-radius: 8px;
+      color: white;
+      background: #355c66;
+
+      &::before {
+        content: counter(n);
+        counter-increment: n;
+      }
+
+      &.medium {
+        min-height: 128px;
+      }
+
+      &.tall {
+        min-height: 256px;
+      }
+
+      &.wide {
+        grid-column: span 2;
+      }
+    }
+  }
+  @supports not (display: grid-lanes) {
+    .not-supported {
+      display: block;
+    }
+
+    .grid-lanes-demo {
+      display: grid;
+    }
+  }
+</style>
+<div class="not-supported">Not supported: <code>display: grid-lanes</code></div>
+<div class="grid-lanes-demo">
+  <div class="card"></div>
+  <div class="card medium"></div>
+  <div class="card"></div>
+  <div class="card tall"></div>
+  <div class="card wide"></div>
+  <div class="card"></div>
+  <div class="card medium"></div>
+  <div class="card"></div>
+  <div class="card"></div>
+  <div class="card tall"></div>
+  <div class="card"></div>
+  <div class="card wide"></div>
+  <div class="card medium"></div>
+  <div class="card"></div>
+  <div class="card"></div>
+  <div class="card tall"></div>
+  <div class="card medium"></div>
+  <div class="card"></div>
+  <div class="card wide"></div>
+  <div class="card"></div>
+  <div class="card"></div>
+  <div class="card medium"></div>
+  <div class="card"></div>
+  <div class="card tall"></div>
+  <div class="card"></div>
+  <div class="card"></div>
+  <div class="card medium"></div>
+  <div class="card wide"></div>
+  <div class="card"></div>
+</div>

@@ -1,0 +1,554 @@
+<!doctype html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Grid Lanes</title>
+<style>
+  :root {
+    --t: 16px;
+    --cols: repeat(auto-fit, minmax(224px, 1fr));
+    --ease-elastic-out: linear(
+      0,
+      0.1116,
+      0.216,
+      0.313,
+      0.4026,
+      0.485,
+      0.5602,
+      0.6286,
+      0.6904,
+      0.746,
+      0.7955,
+      0.8396,
+      0.8783,
+      0.9123,
+      0.9418,
+      0.9672,
+      0.9888,
+      1.0071,
+      1.0222,
+      1.0346,
+      1.0446,
+      1.0524,
+      1.0582,
+      1.0624,
+      1.0651,
+      1.0666,
+      1.067,
+      1.0665,
+      1.0653,
+      1.0635,
+      1.0611,
+      1.0584,
+      1.0555,
+      1.0523,
+      1.049,
+      1.0456,
+      1.0422,
+      1.0389,
+      1.0356,
+      1.0324,
+      1.0293,
+      1.0264,
+      1.0236,
+      1.021,
+      1.0186,
+      1.0163,
+      1.0142,
+      1.0122,
+      1.0105,
+      1.0089,
+      1.0074,
+      1.0061,
+      1.0049,
+      1.0039,
+      1.003,
+      1.0022,
+      1.0015,
+      1.0009,
+      1.0003,
+      0.9999,
+      0.9995,
+      0.9992,
+      0.999,
+      0.9988,
+      0.9987,
+      0.9986,
+      0.9985,
+      0.9985,
+      0.9984,
+      0.9985,
+      0.9985,
+      0.9985,
+      0.9986,
+      0.9986,
+      0.9987,
+      0.9988,
+      0.9989,
+      0.9989,
+      0.999,
+      0.9991,
+      0.9992,
+      0.9992,
+      0.9993,
+      0.9994,
+      0.9994,
+      0.9995,
+      0.9996,
+      0.9996,
+      0.9997,
+      0.9997,
+      0.9998,
+      0.9998,
+      0.9998,
+      0.9999,
+      0.9999,
+      0.9999,
+      0.9999,
+      0.9999,
+      1,
+      1,
+      1
+    );
+    view-transition-name: none;
+  }
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #f5f5f4;
+    color: #111111;
+    font:
+      16px/1.5 Avenir Next,
+      Helvetica Neue,
+      sans-serif;
+    text-autospace: normal;
+  }
+
+  h1,
+  h2,
+  p {
+    margin: 0;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  h1 {
+    font-size: 6rem;
+    font-weight: 100;
+  }
+
+  h2 {
+    display: block;
+    inline-size: fit-content;
+    font-size: 4rem;
+    font-weight: 100;
+    mix-blend-mode: overlay;
+    text-box: trim-both cap;
+  }
+
+  .segment {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid #d4d4d4;
+    border-radius: 999px;
+    background: #ebebeb;
+
+    &::before {
+      content: "";
+      position: absolute;
+      position-anchor: --active-segment-button;
+      top: anchor(top);
+      left: anchor(left);
+      width: anchor-size(width);
+      height: anchor-size(height);
+      border-radius: 999px;
+      background: #ffffff;
+      pointer-events: none;
+      transition:
+        top 800ms var(--ease-elastic-out),
+        left 800ms var(--ease-elastic-out),
+        width 800ms var(--ease-elastic-out),
+        height 800ms var(--ease-elastic-out);
+    }
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      min-block-size: 40px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+      line-height: 1;
+      transition: 0.2s;
+      position: relative;
+      z-index: 1;
+
+      &:has(input:checked) {
+        anchor-name: --active-segment-button;
+      }
+
+      &:has(input:disabled) {
+        cursor: not-allowed;
+        color: #737373;
+      }
+
+      &:hover {
+        color: #000;
+      }
+
+      &:hover:not(:has(input:checked)) {
+        background: #f0f0f0;
+      }
+    }
+
+    input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      appearance: none;
+      margin: 0;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  main {
+    width: 100%;
+
+    .not-supported {
+      display: none;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: #ebebeb;
+      color: #404040;
+      font-size: 14px;
+    }
+
+    .title {
+      margin-bottom: 16px;
+
+      h1 {
+        margin-bottom: 8px;
+      }
+
+      hr {
+        margin: 0;
+        border: 0;
+        border-top: 1px solid #d4d4d4;
+      }
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px 16px;
+      align-items: start;
+      margin-bottom: 32px;
+
+      fieldset {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      legend {
+        width: 100%;
+        margin-bottom: 4px;
+      }
+
+      .group {
+        display: grid;
+        gap: 8px;
+      }
+
+      .help {
+        max-width: 320px;
+        color: #525252;
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0;
+        padding-left: 16px;
+      }
+
+      output {
+        display: block;
+      }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: var(--cols);
+      gap: 16px;
+      flow-tolerance: var(--t);
+      overflow: clip;
+      border-radius: 8px;
+      view-transition-name: board;
+
+      article {
+        position: relative;
+        overflow: clip;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #fff;
+        padding: 16px;
+        display: grid;
+        gap: 8px;
+        align-content: start;
+        min-height: 128px;
+        view-transition-group: board;
+
+        > * {
+          position: relative;
+          z-index: 1;
+        }
+
+        &.wide {
+          grid-column: span 2;
+          min-height: 160px;
+        }
+
+        &.tall {
+          min-height: 288px;
+        }
+
+        &.mid {
+          min-height: 192px;
+        }
+      }
+
+      .media {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        -webkit-user-drag: none;
+        user-select: none;
+        z-index: 0;
+      }
+
+      &[data-mode="grid"] {
+        grid-auto-rows: 240px;
+
+        article {
+          min-height: auto;
+          block-size: 100%;
+
+          &.wide,
+          &.tall,
+          &.mid {
+            min-height: auto;
+          }
+        }
+      }
+    }
+  }
+
+  html {
+    &::view-transition-group-children(board) {
+      overflow: clip;
+      border-radius: 8px;
+    }
+
+    &::view-transition-group(.tile),
+    &::view-transition-group-children(.tile) {
+      overflow: clip;
+      border-radius: 8px;
+    }
+
+    &::view-transition-image-pair(.tile-media),
+    &::view-transition-group(.tile-media),
+    &::view-transition-group-children(.tile-media) {
+      overflow: clip;
+      border-radius: 8px;
+    }
+
+    &::view-transition-old(.tile-media),
+    &::view-transition-new(.tile-media) {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      overflow: clip;
+      border-radius: 8px;
+    }
+
+    &::view-transition-old(.tile-number),
+    &::view-transition-new(.tile-number) {
+      inline-size: fit-content;
+      block-size: auto;
+      transform-origin: top left;
+    }
+  }
+
+  @supports not (display: grid-lanes) {
+    main {
+      .not-supported {
+        display: block;
+      }
+    }
+  }
+
+  @media (width <= 720px) {
+    body {
+      padding: 12px;
+    }
+
+    main {
+      .grid {
+        article {
+          &.wide {
+            grid-column: auto;
+          }
+        }
+      }
+    }
+  }
+</style>
+<main>
+  <div class="not-supported">Not supported: <code>display: grid-lanes</code></div>
+  <header class="title">
+    <h1 id="title">新しいCSS Grid Lanes</h1>
+    <hr />
+  </header>
+
+  <form class="controls">
+    <div class="group">
+      <fieldset id="mode">
+        <legend>Mode</legend>
+        <div class="segment">
+          <label title="通常の行と列で並べる"
+            ><input type="radio" name="mode" value="grid" />Grid</label
+          >
+          <label title="行を固定せず、高さの違うタイルを詰めて並べる"
+            ><input type="radio" name="mode" value="grid-lanes" checked />Grid Lanes</label
+          >
+        </div>
+      </fieldset>
+    </div>
+    <div class="group">
+      <fieldset id="template">
+        <legend>Template</legend>
+        <div class="segment">
+          <label title="全部同じ幅"
+            ><input
+              type="radio"
+              name="template"
+              value="repeat(auto-fit, minmax(224px, 1fr))"
+              checked
+            />Even</label
+          >
+          <label title="細い列と太い列を交互に作る"
+            ><input
+              type="radio"
+              name="template"
+              value="repeat(auto-fit, minmax(128px, .8fr) minmax(224px, 1.6fr))"
+            />Mixed</label
+          >
+        </div>
+      </fieldset>
+    </div>
+    <div class="group" id="flow-group">
+      <label title="小さいほど前に詰めることを優先。大きいほど見た目の順序を保ちやすい。"
+        >Flow Tolerance
+        <input id="t" type="range" min="4" max="48" step="1" value="16" />
+      </label>
+      <output id="out">16px</output>
+    </div>
+  </form>
+
+  <section class="grid"></section>
+</main>
+<script>
+  const root = document.documentElement;
+  const grid = document.querySelector(".grid");
+  const title = document.getElementById("title");
+  const flowGroup = document.getElementById("flow-group");
+  const modes = document.querySelectorAll('input[name="mode"]');
+  const gridLanesInput = document.querySelector('input[name="mode"][value="grid-lanes"]');
+  const templates = document.querySelectorAll('input[name="template"]');
+  const t = document.getElementById("t");
+  const out = document.getElementById("out");
+  const supportsGridLanes = CSS.supports("display", "grid-lanes");
+  const sizes = ["", "mid", "", "tall", "", "mid", "", "wide"];
+  const images = Array.from(
+    { length: 12 },
+    (_, i) => `./images/photo_${String(i + 1).padStart(5, "0")}.webp`,
+  );
+  const mutate = (fn) => document.startViewTransition(fn);
+  for (let i = 1; i <= 30; i++) {
+    const article = document.createElement("article");
+    const size = sizes[(i - 1) % sizes.length];
+    if (size) article.className = size;
+    article.style.viewTransitionName = `tile-${i}`;
+    article.style.viewTransitionClass = "tile";
+    const img = document.createElement("img");
+    img.className = "media";
+    img.src = images[(i - 1) % images.length];
+    img.loading = "lazy";
+    img.style.viewTransitionName = `tile-${i}-media`;
+    img.style.viewTransitionClass = "tile-media";
+    img.style.viewTransitionGroup = `tile-${i}`;
+    const number = document.createElement("h2");
+    number.textContent = String(i).padStart(2, "0");
+    number.style.viewTransitionName = `tile-${i}-number`;
+    number.style.viewTransitionClass = "tile-number";
+    number.style.viewTransitionGroup = `tile-${i}`;
+    article.prepend(img);
+    article.append(number);
+    grid.append(article);
+  }
+
+  const setMode = (mode) => {
+    grid.style.display = mode;
+    grid.dataset.mode = mode;
+    flowGroup.hidden = mode === "grid";
+    title.textContent = mode === "grid" ? "普通のCSS Grid" : "新しいCSS Grid Lanes";
+  };
+
+  const initialMode = supportsGridLanes ? "grid-lanes" : "grid";
+  if (!supportsGridLanes) {
+    gridLanesInput.disabled = true;
+  }
+  setMode(initialMode);
+
+  for (const input of modes) {
+    input.checked = input.value === initialMode;
+    input.oninput = (e) =>
+      mutate(() => {
+        setMode(e.target.value);
+      });
+  }
+  for (const input of templates) {
+    input.oninput = (e) =>
+      mutate(() => {
+        root.style.setProperty("--cols", e.target.value);
+      });
+  }
+  t.value = "16";
+  t.oninput = (e) => {
+    const v = `${e.target.value}px`;
+    mutate(() => {
+      root.style.setProperty("--t", v);
+      out.value = out.textContent = v;
+    });
+  };
+</script>
