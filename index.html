@@ -5,7 +5,7 @@
 <style>
   :root {
     --t: 16px;
-    --cols: repeat(auto-fit, minmax(224px, 1fr));
+    --cols: repeat(auto-fit, minmax(160px, 1fr));
     --ease-elastic-out: linear(
       0,
       0.1116,
@@ -278,6 +278,22 @@
         gap: 8px;
       }
 
+      #flow-group {
+        gap: 4px;
+      }
+
+      .flow-control {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .flow-control output {
+        display: inline-block;
+        min-inline-size: 8ch;
+        white-space: nowrap;
+      }
+
       .help {
         max-width: 320px;
         color: #525252;
@@ -452,7 +468,7 @@
             ><input
               type="radio"
               name="template"
-              value="repeat(auto-fit, minmax(224px, 1fr))"
+              value="repeat(auto-fit, minmax(160px, 1fr))"
               checked
             />A. Even</label
           >
@@ -460,18 +476,20 @@
             ><input
               type="radio"
               name="template"
-              value="repeat(auto-fit, minmax(128px, .8fr) minmax(224px, 1.6fr))"
+              value="repeat(auto-fit, minmax(96px, .8fr) minmax(160px, 1.6fr))"
             />B. Mixed</label
           >
         </div>
       </fieldset>
     </div>
     <div class="group" id="flow-group">
-      <label title="小さいほど前に詰めることを優先。大きいほど見た目の順序を保ちやすい。"
-        >Flow Tolerance
+      <label for="t" title="小さいほど前に詰めることを優先。大きいほど見た目の順序を保ちやすい。"
+        >Flow Tolerance</label
+      >
+      <div class="flow-control">
         <input id="t" type="range" min="0" max="320" step="16" value="16" />
-      </label>
-      <output id="out">16px (normal)</output>
+        <output id="out" for="t">16px</output>
+      </div>
     </div>
   </form>
 
@@ -495,8 +513,7 @@
     (_, i) => `./images/photo_${String(i + 1).padStart(5, "0")}.webp`,
   );
   const mutate = (fn) => document.startViewTransition(fn);
-  const formatFlowTolerance = (value) =>
-    value === defaultFlowTolerance ? `${value}px (normal)` : `${value}px`;
+  const formatFlowTolerance = (value) => `${value}px`;
   const setFlowTolerance = (value) => {
     root.style.setProperty("--t", `${value}px`);
     out.value = out.textContent = formatFlowTolerance(value);
